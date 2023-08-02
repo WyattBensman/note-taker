@@ -15,5 +15,7 @@ A user is able to give each note a title, and a description. The user is able to
 Once a user has generated their own list of items, they're able to remove them by hitting the 'Delete' icon that appears with the item!
 
 ## Screenshot
+![note-taker-screenshot](https://github.com/WyattBensman/the-merry-wishlist/assets/126895244/5522b053-b255-4fda-a44b-ff51c0be2966)
 
 ## Website Link
+https://note-taker-wyattbensman-cd04981bcc7d.herokuapp.com/
