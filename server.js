@@ -17,7 +17,7 @@ const notes = require('./db/db.json')
 app.use(express.static('public'));
 
 // Render the home page
-app.get('/', (req, rese) => {
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 })
 
@@ -29,7 +29,7 @@ app.get('/notes', (req, res) => {
 // API to get all of the notes
 app.get('/api/notes', (req, res) => {
     // Read the JSON file to get/read the notes
-    res.readFile(path.join(__dirname, 'db/db.json'), 'utf8', (err, data) => {
+    fs.readFile(path.join(__dirname, 'db/db.json'), 'utf8', (err, data) => {
         // Check if there's an error
         if (err) {
             console.error('Error reading notes data:', err);
@@ -60,17 +60,17 @@ app.post('/api/notes', (req, res) => {
     }
 
     // Read the JSON file to get/read the notes
-    res.readFile(path.join(__dirname, 'db/db.json'), 'utf8', (err, data) => {
+    fs.readFile(path.join(__dirname, 'db/db.json'), 'utf8', (err, data) => {
         // Check if there's an error
         if (err) {
             console.error('Error reading notes data:', err);
             return res.status(500).json({ error: 'Error reading notes data' });
         }
 
-        let notes = [];
+        let notesData = [];
         // Parse the JSON data into an array
         try {
-            notes = JSON.parse(data)
+            notesData = JSON.parse(data)
         }
         // Check if there's an error parsing the notes
         catch (err) {
@@ -84,9 +84,9 @@ app.post('/api/notes', (req, res) => {
             text
         }
 
-        notes.push(newNote);
+        notesData.push(newNote);
 
-        fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notes), (err) => {
+        fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(notesData), (err) => {
             if (err) {
                 console.error('Error writing notes data:', err);
                 return res.status(500).json({ error: 'Error writing notes data' });
@@ -98,6 +98,35 @@ app.post('/api/notes', (req, res) => {
 });
 
 // API to delete a note
+app.delete('/api/notes/:id', (req, res) => {
+    const noteId = req.params.id;
+
+    fs.readFile(path.join(__dirname, 'db/db.json'), 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading notes data:', err);
+            return res.status(500).json({ error: 'Error reading notes data' });
+        }
+
+        let notes = [];
+        try {
+            notes = JSON.parse(data);
+        } catch (parseError) {
+            console.error('Error parsing notes data:', parseError);
+            return res.status(500).json({ error: 'Error parsing notes data' });
+        }
+
+        const updatedNotes = notes.filter((note) => note.id !== noteId);
+
+        fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(updatedNotes), (err) => {
+            if (err) {
+                console.error('Error writing notes data:', err);
+                return res.status(500).json({ error: 'Error writing notes data' });
+            }
+
+            res.json({ message: 'Note deleted successfully' });
+        });
+    });
+});
 
 app.listen(PORT, () =>
     console.log(`Example app listening at http://localhost:${PORT}`)
